@@ -25,6 +25,7 @@ const register = asyncHandler (async (req,res)=>{
 })
 
 const login = asyncHandler (async (req,res)=>{
+    console.log("here")
     const {name,emailId,password} = req.body
     if(!password || !emailId){
         res.status(400)
@@ -34,7 +35,6 @@ const login = asyncHandler (async (req,res)=>{
     if(user !=null){
         const validate = await bcrypt.compare(password, user.password)
         if(validate){
-            console.log(user.id)
             const token=jwt.sign({
                 user: {
                     id : user.id,
@@ -42,16 +42,15 @@ const login = asyncHandler (async (req,res)=>{
                     emailId : emailId
                 }
               }, process.env.PRIVET_KEY, { expiresIn: '1h'})
-              console.log(user)
-            console.log(token)
+            res.json({"user":`${user}`,"token":`${token}`})
         }else{
-            
+            res.status(400)
+            throw new Error("Password is incorrect")
         }
-        
     }else{
-
+        res.status(400)
+        throw new Error("There is no user with this email address")
     }
-    res.json({message : 'Hello'})
 })
 
 const current =asyncHandler(async(req,res)=>{
